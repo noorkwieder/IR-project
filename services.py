@@ -1,3 +1,6 @@
+extract_id_and_content,load_documents,read_inverted_index_from_file,process_query,read_processed_data_from_file,read_tfidf_representation,read_queries_from_file,parse_qrels
+read_tfidf_representation,get_query_id_from_query,get_query_id
+
 def extract_id_and_content(document_text):
     # Split the document text to separate ID and content
     parts = document_text.split(maxsplit=1)

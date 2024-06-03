@@ -10,7 +10,7 @@ import spacy
 from textblob import TextBlob
 import datefinder
 import datetime
-
+from preprocess import process_document_text;
 
 # Load the pre-trained English model for POS lemmatization
 nlp = spacy.load('en_core_web_sm')
