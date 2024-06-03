@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Engine</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Search Engine</h1>
+        <form id="search-form">
+            <input type="text" name="query" id="query" placeholder="Enter your query" required>
+            <select name="dataset" id="dataset">
+                <option value="dataset1">Dataset 1</option>
+                <option value="dataset2">Dataset 2</option>
+            </select>
+            <button type="button" onclick="search()">Search</button>
+        </form>
+        <div id="results"></div>
+    </div>
+
+    <script>
+        function search() {
+            var query = document.getElementById('query').value;
+            var dataset = document.getElementById('dataset').value;
+
+            var apiUrl = dataset === 'dataset1' ? '/api/retrieve_dataset1' : '/api/retrieve_dataset2';
+
+            fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ query: query }),
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                displayResults(data.documents);
+            })
+            .catch(error => {
+                console.error('Error fetching data:', error);
+                // Handle errors or display an error message
+            });
+        }
+
+        function displayResults(results) {
+            var resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = ''; // Clear previous results
+
+            if (results.length === 0) {
+                resultsDiv.innerHTML = '<p>No documents found.</p>';
+            } else {
+                var ul = document.createElement('ul');
+                results.forEach(doc => {
+                    var li = document.createElement('li');
+                    li.textContent = JSON.stringify(doc); // Adjust based on your document structure
+                    ul.appendChild(li);
+                });
+                resultsDiv.appendChild(ul);
+            }
+        }
+    </script>
+</body>
+</html>
