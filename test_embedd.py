@@ -1,3 +1,5 @@
+from services import  read_inverted_index_from_file,
+
 def get_relevant_docs(query_id, relevant_docs):
     if query_id in relevant_docs:
         return relevant_docs[query_id]
@@ -82,6 +84,16 @@ def mean_average_precision2(retrieved_docs, relevant_docs):
     return map_score
 
 k = 10# Example cutoff for Precision and Recall
+
+
+def precision_at_k(retrieved_docs, relevant_docs, k):
+    if k == 0:
+        return 0.0
+
+    retrieved_k = retrieved_docs[:k]
+    relevant_and_retrieved = [doc for doc in retrieved_k if doc in relevant_docs]
+    precision = len(relevant_and_retrieved) / k
+    return precision
 
 precision = precision_at_k_for_all_2(formatted_output_retrieved, formatted_output_relevant, k)
 recall = recall_at_k_for_all(formatted_output_retrieved, formatted_output_relevant, k)

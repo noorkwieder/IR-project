@@ -29,18 +29,6 @@ def tfidf_representation(dataset_file_path, output_file_path):
     # # Save the TF-IDF matrix representation to a CSV file
     # feature_names = vectorizer.get_feature_names_out()
 
-    # with open(output_file_path, 'w', encoding='utf-8') as output_file:
-    #     # Write header
-    #     output_file.write(",".join(feature_names) + "\n")
-
-    #     # Write TF-IDF values
-    #     for i in range(len(documents)):
-    #         output_file.write(doc_ids[i] + ",")
-    #         for j in range(len(feature_names)):
-    #             output_file.write(str(tfidf_matrix[i, j]) + ",")
-    #         output_file.write("\n")
-
-    # print(f"TF-IDF representation saved to {output_file_path}")
 
     return vectorizer
 
@@ -85,5 +73,52 @@ with open('vectorizer.pkl', 'wb') as file:
     # Build inverted index and save to file
     create_inverted_index(tfidf_df, inverted_index_output_file)
 
+ def get_query_tfidf_representation(processed_query_tokens, vectorizer):
+
+        tfidf_matrix_query = vectorizer.transform([' '.join(processed_query_tokens)])
+        # Convert the TF-IDF matrix of the query to a Pandas DataFrame
+        df_query = pd.DataFrame(tfidf_matrix_query.toarray(), columns=vectorizer.get_feature_names_out())
+
+        return df_query
+
+def retrieve_matching_docs(query_tokens,inverted_index):
+
+    # Create a list to store the document IDs matching the query terms
+    matching_docs = []
+
+    # Iterate over the query terms
+    for query_term in query_tokens:
+        # Check if the query term exists in the inverted index
+        if query_term in inverted_index:
+            # Retrieve the list of document scores for the query term
+            doc_scores = inverted_index[query_term]
+            # Extract the document IDs from the document scores
+            doc_ids = [doc_score[0] for doc_score in doc_scores]
+            # Add the document IDs to the matching_docs list
+            matching_docs.extend(doc_ids)
+
+    # Remove duplicates from the matching_docs list
+    matching_docs = list(set(matching_docs))
+
+    return matching_docs
+
+
+def calculate_cosine_similarity(matching_docs,df_query,df):
+    # Calculate the cosine similarity between the query and each matching document
+    cosine_similarities = df.loc[matching_docs,].dot(df_query.values[0])
+    # Sort the documents based on cosine similarity in descending order
+    sorted_docs = cosine_similarities.sort_values(ascending=False)
+    return sorted_docs
+
+
+def get_retrieved_docs(sorted_docs, processed_data):
+    retrieved_docs = []
+    data_dict = {i: doc[0] for i, doc in enumerate(processed_data)}  # Convert data to a dictionary for quick access
+    # print(data_dict)
+    for doc_id, similarity in sorted_docs.items():
+        if doc_id in data_dict:
+            retrieved_docs.append(data_dict[doc_id])
+
+    return retrieved_docs
 
 
